@@ -23,24 +23,35 @@ const components: WorkerComponent[] = [
   { name: "reservation-expiry", concurrency: 1 },
 ]
 
-const abortController = new AbortController()
+const run = async (): Promise<void> => {
+  const abortController = new AbortController()
 
-for (const signal of ["SIGINT", "SIGTERM"] as const) {
-  process.on(signal, () => abortController.abort(signal))
+  for (const signal of ["SIGINT", "SIGTERM"] as const) {
+    process.on(signal, () => abortController.abort(signal))
+  }
+
+  console.info(JSON.stringify({
+    level: "info",
+    message: "commerce worker started",
+    components,
+  }))
+
+  await new Promise<void>((resolve) => {
+    abortController.signal.addEventListener("abort", () => resolve(), { once: true })
+  })
+
+  console.info(JSON.stringify({
+    level: "info",
+    message: "commerce worker stopped",
+    reason: abortController.signal.reason,
+  }))
 }
 
-console.info(JSON.stringify({
-  level: "info",
-  message: "commerce worker started",
-  components,
-}))
-
-await new Promise<void>((resolve) => {
-  abortController.signal.addEventListener("abort", () => resolve(), { once: true })
+run().catch((error: unknown) => {
+  console.error(JSON.stringify({
+    level: "error",
+    message: "commerce worker failed",
+    error: error instanceof Error ? error.message : String(error),
+  }))
+  process.exitCode = 1
 })
-
-console.info(JSON.stringify({
-  level: "info",
-  message: "commerce worker stopped",
-  reason: abortController.signal.reason,
-}))
