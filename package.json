@@ -13,12 +13,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@medusajs/cli": "^2.16.0",
-    "@medusajs/framework": "^2.16.0",
-    "@medusajs/medusa": "^2.16.0"
+    "@medusajs/cli": "2.17.2",
+    "@medusajs/framework": "2.17.2",
+    "@medusajs/medusa": "2.17.2"
   },
   "devDependencies": {
+    "@swc/core": "^1.7.28",
     "@types/node": "^24.0.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"
   }
