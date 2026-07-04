@@ -2,6 +2,9 @@ name: Commerce Validation
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -9,12 +12,27 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+      TC_POSTGRES_DSN: postgres://terra:terra@localhost:5432/terra_commerce
+      TC_REDIS_URL: redis://localhost:6379/0
+      TC_COMMERCE_JWT_SECRET: test-only-secret-with-at-least-32-characters
+      TC_COMMERCE_COOKIE_SECRET: test-only-cookie-secret-with-at-least-32-characters
     steps:
-      - name: Capture install result
-        shell: bash
-        run: |
-          set -o pipefail
-          git clone --quiet --depth 1 --branch "$GITHUB_HEAD_REF" "https://github.com/$GITHUB_REPOSITORY.git" source
-          cd source
-          npx --yes pnpm@11.9.0 install --no-frozen-lockfile --reporter=append-only 2>&1 | tail -n 30
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --network-concurrency=8 --child-concurrency=2
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Build
+        run: pnpm build
