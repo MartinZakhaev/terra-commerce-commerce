@@ -22,4 +22,7 @@ export default defineConfig({
       cookieSecret: required("TC_COMMERCE_COOKIE_SECRET"),
     },
   },
+  admin: {
+    disable: true,
+  },
 })
