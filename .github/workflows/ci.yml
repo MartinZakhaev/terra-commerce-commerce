@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Capture install output
+      - name: Capture install result
         shell: bash
         run: |
           set -o pipefail
           git clone --quiet --depth 1 --branch "$GITHUB_HEAD_REF" "https://github.com/$GITHUB_REPOSITORY.git" source
           cd source
-          npx --yes pnpm@11.9.0 install --no-frozen-lockfile --reporter=append-only 2>&1 | tail -n 120
+          npx --yes pnpm@11.9.0 install --no-frozen-lockfile --reporter=append-only 2>&1 | tail -n 30
